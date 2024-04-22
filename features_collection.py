@@ -36,7 +36,22 @@ print(ford_historical_stock_prices.shape)
 # Extract General Motors stock data - gm_historical_stock_prices
 gm = yf.download(tickers=['GM'],start = "2000-01-01",end = "2024-01-01",interval="1d")['Close']
 gm_historical_stock_prices = gm[gm.index.isin(tesla.index)]
+print('gm',gm_historical_stock_prices.shape)
+#We observe that GM's data is missing for a period of time between 2010 and 2011, we need to fill in the missing data.
+#We can use the average of the previous data points to fill in the missing data.
+first_value = gm_historical_stock_prices[0]
+print(first_value)
+#We input the first value we have of General Motors stock price where we have missing data
+#We need to add 100 first values to the tensor
+addition = [first_value] * 100
+gm_historical_stock_prices = pd.concat([pd.Series(addition), gm_historical_stock_prices])
+#Now we set its index as Tesla's index
+gm_historical_stock_prices.index = tesla_historical_stock_prices.index
 print(gm_historical_stock_prices.shape)
+print('gm',gm_historical_stock_prices)
+plt.plot(gm_historical_stock_prices)
+plt.show()
+
 
 # Extract Toyota stock data - toyota_historical_stock_prices
 toyota = yf.download(tickers=['TM'],start = "2000-01-01",end = "2024-01-01",interval="1d")['Close']
@@ -49,7 +64,7 @@ nissan_historical_stock_prices = nissan[nissan.index.isin(tesla.index)]
 print(nissan_historical_stock_prices.shape)
 
 #Extract Tesla wikipedia page views over time - wiki_data_df['Tesla Motors[en]']
-wiki_data = pd.read_excel(r"D:\iCloudDrive\Documents\BERKELEY\242MACHINELEARNING\Project\wiki.xlsx",header = 1)
+wiki_data = pd.read_excel('wiki.xlsx',header = 1)
 wiki_data = wiki_data.set_index('DateTime')
 wiki_data = wiki_data[wiki_data.index.isin(tesla.index)]
 wiki_data_df = pd.DataFrame(wiki_data, columns=['Tesla Motors[en]'])
