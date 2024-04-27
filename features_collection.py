@@ -167,5 +167,6 @@ for i in range(0,len(features['since'])):
         features['Tesla Wikipedia Page Views'][i] = 0
     else:
         features['Tesla Wikipedia Page Views'][i] = sum(weekly_wiki)/len(weekly_wiki)
-    
+
+features['Previous Week Tesla Stock Price'] = features['Tesla Stock Price'].shift(1)
 print(features)
