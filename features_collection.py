@@ -171,8 +171,8 @@ for i in range(0,len(features['since'])):
 features['Previous Week Tesla Stock Price'] = features['Tesla Stock Price'].shift(1)
 
 #Divide the data into training and testing data
-features_train = features[features.index < '2020-01-01']
-features_test = features[features.index >= '2020-01-01']
+features_train = features[features['since'] < '2020-01-01']
+features_test = features[features['since'] >= '2020-01-01']
 #Convert the data into csv files
 features_train.to_csv('features_train.csv')
 features_test.to_csv('features_test.csv')
