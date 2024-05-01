@@ -111,6 +111,8 @@ features = pd.DataFrame(columns=['since', 'until', 'Tesla Stock Price', 'S&P 500
 features['since'] = weekly['since']
 features['until'] = weekly['until']
 features['Sentiment'] = weekly['sentiment']
+features['Previous Sentiment'] = features['Sentiment'].shift(1)
+
 
 for i in range(0,len(features['since'])):
     weekly_tesla=[]
@@ -168,12 +170,16 @@ for i in range(0,len(features['since'])):
     else:
         features['Tesla Wikipedia Page Views'][i] = sum(weekly_wiki)/len(weekly_wiki)
 
-features['Previous Week Tesla Stock Price'] = features['Tesla Stock Price'].shift(1)
 
+# Add previous week's price as a feature
+features['Previous Week Tesla Stock Price'] = features['Tesla Stock Price'].shift(1)
+#eliminate the first row of data
+features = features[2:]
 #Divide the data into training and testing data
 features_train = features[features['since'] < '2020-01-01']
 features_test = features[features['since'] >= '2020-01-01']
 #Convert the data into csv files
-features_train.to_csv('features_train.csv')
-features_test.to_csv('features_test.csv')
+features_train.drop(columns=['since', 'until']).to_csv('features_train.csv')
+features_test.drop(columns=['since', 'until']).to_csv('features_test.csv')
 print(features)
+
