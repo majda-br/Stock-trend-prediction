@@ -7,7 +7,12 @@ import sentimentanalysis
 # Extract Tesla stock data - tesla_historical_stock_prices
 tesla = yf.download(tickers=['TSLA'],start = "2010-06-29",end = "2021-06-01",interval="1d") 
 
-tesla_historical_stock_prices =tesla['Close']
+tesla_historical_stock_prices = tesla['Close']
+tesla_open_stock_prices = tesla['Open']
+tesla_historical_volume = tesla['Volume']
+tesla_historical_adj_close_stock_prices = tesla['Adj Close']
+tesla_historical_high = tesla['High']
+tesla_historical_low = tesla['Low']
 print(tesla_historical_stock_prices.shape)
 
 # Extract S&P 500 stock data variance - sp500_variance
@@ -86,7 +91,12 @@ plt.show()
 #now we create the df that contains all features
 # Create a dataframe with all features
 df = pd.DataFrame({
-    'Tesla Stock Price': tesla_historical_stock_prices,
+    'Tesla Stock Close Price': tesla_historical_stock_prices,
+    'Tesla Stock Open Price': tesla_open_stock_prices,
+    'Tesla Stock Volume': tesla_historical_volume,
+    'Tesla Stock Adj Close Price': tesla_historical_adj_close_stock_prices,
+    'Tesla Stock High': tesla_historical_high,
+    'Tesla Stock Low': tesla_historical_low,
     'S&P 500 Variance': sp500_variance_df['S&P 500 Variance'],
     'Ford Stock Price': ford_historical_stock_prices,
     'GM Stock Price': gm_historical_stock_prices,
@@ -107,7 +117,7 @@ plt.show()
 
 
 #Restructure these data into weekly data
-features = pd.DataFrame(columns=['since', 'until', 'Tesla Stock Price', 'S&P 500 Variance', 'Ford Stock Price', 'GM Stock Price', 'Toyota Stock Price', 'Nissan Stock Price', 'Tesla Wikipedia Page Views','Sentiment'])
+features = pd.DataFrame(columns=['since', 'until', 'Tesla Stock Close Price', 'Tesla Stock Open Price','Tesla Stock Volume','Tesla Stock Adj Close Price','Tesla Stock High','Tesla Stock Low','S&P 500 Variance', 'Ford Stock Price', 'GM Stock Price', 'Toyota Stock Price', 'Nissan Stock Price', 'Tesla Wikipedia Page Views','Sentiment'])
 features['since'] = weekly['since']
 features['until'] = weekly['until']
 features['Sentiment'] = weekly['sentiment']
@@ -115,16 +125,26 @@ features['Previous Sentiment'] = features['Sentiment'].shift(1)
 
 
 for i in range(0,len(features['since'])):
-    weekly_tesla=[]
+    weekly_tesla_close=[]
+    weekly_tesla_open=[]
+    weekly_tesla_volume=[]
+    weekly_tesla_adj_close=[]
+    weekly_tesla_high=[]
+    weekly_tesla_low=[]
     weekly_sp500=[]
     weekly_ford=[]
     weekly_gm=[]
     weekly_toyota=[]
     weekly_nissan=[]
     weekly_wiki=[]
-    for j in range(0,len(df['Tesla Stock Price'])):
+    for j in range(0,len(df['Tesla Stock Close Price'])):
         if df.index[j] >= features['since'][i] and df.index[j] < features['until'][i]:
-            weekly_tesla.append(df['Tesla Stock Price'][j])
+            weekly_tesla_close.append(df['Tesla Stock Close Price'][j])
+            weekly_tesla_open.append(df['Tesla Stock Open Price'][j])
+            weekly_tesla_volume.append(df['Tesla Stock Volume'][j])
+            weekly_tesla_adj_close.append(df['Tesla Stock Adj Close Price'][j])
+            weekly_tesla_high.append(df['Tesla Stock High'][j])
+            weekly_tesla_low.append(df['Tesla Stock Low'][j])
             weekly_sp500.append(df['S&P 500 Variance'][j])
             weekly_ford.append(df['Ford Stock Price'][j])
             weekly_gm.append(df['GM Stock Price'][j])
@@ -135,10 +155,35 @@ for i in range(0,len(features['since'])):
    
 
     #obtain the average of the scores
-    if len(weekly_tesla) == 0:
-        features['Tesla Stock Price'][i] = 0
+    if len(weekly_tesla_close) == 0:
+        features['Tesla Stock Close Price'][i] = 0
     else:
-        features['Tesla Stock Price'][i] = sum(weekly_tesla)/len(weekly_tesla)
+        features['Tesla Stock Close Price'][i] = sum(weekly_tesla_close)/len(weekly_tesla_close)
+
+    if len(weekly_tesla_open) == 0:
+        features['Tesla Stock Open Price'][i] = 0
+    else:
+        features['Tesla Stock Open Price'][i] = sum(weekly_tesla_open)/len(weekly_tesla_open)
+
+    if len(weekly_tesla_volume) == 0:
+        features['Tesla Stock Volume'][i] = 0
+    else:
+        features['Tesla Stock Volume'][i] = sum(weekly_tesla_volume)/len(weekly_tesla_volume)
+
+    if len(weekly_tesla_adj_close) == 0:
+        features['Tesla Stock Adj Close Price'][i] = 0
+    else:
+        features['Tesla Stock Adj Close Price'][i] = sum(weekly_tesla_adj_close)/len(weekly_tesla_adj_close)
+
+    if len(weekly_tesla_high) == 0:
+        features['Tesla Stock High'][i] = 0
+    else:
+        features['Tesla Stock High'][i] = sum(weekly_tesla_high)/len(weekly_tesla_high)
+    
+    if len(weekly_tesla_low) == 0:
+        features['Tesla Stock Low'][i] = 0
+    else:
+        features['Tesla Stock Low'][i] = sum(weekly_tesla_low)/len(weekly_tesla_low)
 
     if len(weekly_sp500) == 0:
         features['S&P 500 Variance'][i] = 0
@@ -172,7 +217,7 @@ for i in range(0,len(features['since'])):
 
 
 # Add previous week's price as a feature
-features['Previous Week Tesla Stock Price'] = features['Tesla Stock Price'].shift(1)
+features['Previous Week Tesla Stock Close Price'] = features['Tesla Stock Close Price'].shift(1)
 #eliminate the first row of data
 features = features[2:]
 #Divide the data into training and testing data
